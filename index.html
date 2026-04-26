@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>REI DO APK - O Painel Supremo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+            background-color: #0f172a;
+            color: white;
+        }
+
+        .area-animada {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+
+        .floating-label {
+            position: absolute;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.08);
+            white-space: nowrap;
+            user-select: none;
+            pointer-events: none;
+            animation: waveFlow 20s infinite linear;
+        }
+
+        @keyframes waveFlow {
+            0% { transform: translateY(110vh) translateX(-20px) rotate(0deg); }
+            50% { transform: translateY(50vh) translateX(30px) rotate(5deg); }
+            100% { transform: translateY(-20vh) translateX(-20px) rotate(-5deg); }
+        }
+
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #video-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.98); flex-direction: column; align-items: center; justify-content: center; }
+        video { width: 100%; max-width: 850px; aspect-ratio: 16/9; background: #000; border: 2px solid #334155; }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #fbbf24; border-radius: 10px; }
+    </style>
+</head>
+<body class="antialiased pb-20">
+
+    <div class="area-animada" id="bg-wave"></div>
+
+    <div id="video-modal" class="fade-in px-4">
+        <div class="w-full max-w-3xl flex justify-between items-center mb-4">
+            <h3 id="video-title" class="font-bold text-yellow-500 italic uppercase">Carregando...</h3>
+            <button onclick="closePlayer()" class="bg-white/10 hover:bg-red-600 px-5 py-2 rounded-xl font-bold transition-all">FECHAR X</button>
+        </div>
+        <video id="video-player" controls autoplay></video>
+    </div>
+
+    <header class="sticky top-0 z-50 glass-card rounded-none border-t-0 border-x-0 px-4 py-5 text-center">
+        <h1 class="text-xl font-black italic tracking-tighter flex items-center justify-center gap-2">
+            <span class="text-yellow-500">👑</span> REI DO APK <span class="text-[10px] bg-yellow-500 text-black px-2 rounded-full not-italic">PRO</span>
+        </h1>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 mt-8 relative z-10">
+        
+        <div id="step-1" class="glass-card p-8 shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-tr from-yellow-600 to-yellow-300 text-black text-4xl flex items-center justify-center rounded-3xl mx-auto mb-4 shadow-[0_0_40px_rgba(234,179,8,0.3)] font-black">👑</div>
+                <h2 class="text-2xl font-black uppercase italic tracking-widest text-white">Bem-vindo</h2>
+                <p class="text-slate-400 text-xs mt-2 font-bold uppercase tracking-tighter">O maior catálogo de ofertas do Brasil</p>
+            </div>
+            
+            <div class="space-y-4">
+                <input type="tel" id="phone" placeholder="(00) 00000-0000" 
+                       class="w-full p-5 bg-slate-900 border border-slate-700 rounded-2xl text-center text-xl text-white focus:ring-2 focus:ring-yellow-500 focus:outline-none transition-all font-black placeholder:text-slate-700"
+                       oninput="formatPhone(this)">
+                <button onclick="identifyOperator()" 
+                        class="w-full bg-yellow-500 text-black font-black py-5 rounded-2xl hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest text-sm shadow-xl">
+                    Entrar no Império
+                </button>
+            </div>
+        </div>
+
+        <div id="step-2" class="hidden space-y-8 pb-10">
+            
+            <div class="fade-in space-y-3">
+                <div class="flex items-center gap-3 px-2">
+                    <span class="p-2 bg-emerald-500/20 text-emerald-500 rounded-lg">🎁</span>
+                    <h3 class="font-black italic uppercase text-sm tracking-widest">Contas Doadas</h3>
+                </div>
+                <div class="glass-card p-4 space-y-3" id="free-accounts-list"></div>
+            </div>
+
+            <div class="fade-in space-y-3">
+                <div class="flex items-center gap-3 px-2 text-blue-500">
+                    <span class="p-2 bg-blue-500/20 rounded-lg">📺</span>
+                    <h3 class="font-black italic uppercase text-sm tracking-widest text-white">Canais de TV</h3>
+                </div>
+                <div class="glass-card overflow-hidden divide-y divide-slate-800 max-h-[250px] overflow-y-auto custom-scroll" id="tv-list"></div>
+            </div>
+
+            <div class="fade-in space-y-3">
+                <div class="flex items-center gap-3 px-2 text-yellow-500">
+                    <span class="p-2 bg-yellow-500/20 rounded-lg">🍿</span>
+                    <h3 class="font-black italic uppercase text-sm tracking-widest text-white">Comprar Streaming</h3>
+                </div>
+                <div class="glass-card divide-y divide-slate-800 max-h-[400px] overflow-y-auto custom-scroll" id="streaming-venda-list"></div>
+            </div>
+
+            <div class="fade-in space-y-3">
+                <div id="op-header" class="p-5 rounded-3xl font-black flex justify-between items-center shadow-xl">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 bg-white/20 rounded-lg text-white">⚡</span>
+                        <span id="op-name" class="italic uppercase text-white">OPERADORA</span>
+                    </div>
+                    <button onclick="resetApp()" class="text-[10px] bg-black/30 px-3 py-1 rounded-full uppercase">Trocar</button>
+                </div>
+                <div class="glass-card divide-y divide-slate-800" id="recarga-list"></div>
+            </div>
+
+            <p class="text-center text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] pt-4">⚡ Rei do APK - Todos os Direitos Reservados</p>
+        </div>
+    </main>
+
+    <script>
+        const contasDoadas = [
+            { app: "NETFLIX 4K", login: "kingfree@netflix.com", pass: "rei8899" },
+            { app: "HBO MAX", login: "contapublica@hbo.com", pass: "rei2024" }
+        ];
+
+        const canaisTV = [
+            { name: "SBT Cidade Verde PI", url: "https://stmv1.transmissaodigital.com/cidadeverdenovo/cidadeverdenovo/chunklist_w1366217477.m3u8" },
+            { name: "CNN Brasil News", url: "https://video01.soultv.com.br/cnnbrasil/cnnbrasil/playlist.m3u8" },
+            { name: "Naruto 24h", url: "https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/5f6df5a173d7340007c559f7/master.m3u8" }
+        ];
+
+        const vendaStreaming = [
+            { name: "Netflix Mensal", price: "1,50", dur: "Mensal", icon: "🍿" },
+            { name: "YouTube Premium", price: "1,50", dur: "Mensal", icon: "📺" },
+            { name: "Globoplay", price: "3,00", dur: "Mensal", icon: "🎬" },
+            { name: "HBO Max", price: "3,00", dur: "Mensal", icon: "🐉" },
+            { name: "Paramount+", price: "3,00", dur: "30 Dias", icon: "🏔️" },
+            { name: "Prime Video", price: "3,00", dur: "7 Dias", icon: "🎬" },
+            { name: "Apple TV", price: "1,50", dur: "7 Dias", icon: "🍎" },
+            { name: "Unitv", price: "1,30", dur: "8 Dias", icon: "⚡" },
+            { name: "Youcine", price: "1,30", dur: "8 Dias", icon: "🎬" }
+        ];
+
+        const operadoras = {
+            claro: { 
+                name: "Claro ✅", color: "bg-red-600", 
+                prices: [[20, 11], [25, 12], [30, 13], [35, 15], [40, 17], [50, 20], [60, 23], [70, 26], [90, 33], [100, 36], [120, 41], [150, 48]] 
+            },
+            tim: { 
+                name: "Tim ✅", color: "bg-blue-700", 
+                prices: [[15, 7], [20, 9], [30, 12], [40, 16], [50, 17], [60, 25], [100, 35]] 
+            },
+            vivo: { 
+                name: "Vivo ✅", color: "bg-purple-700", 
+                prices: [[15, 11], [20, 12], [25, 13], [30, 15]] 
+            }
+        };
+
+        const bgWave = document.getElementById('bg-wave');
+        const labels = ['VIVO', 'CLARO', 'TIM', 'IPTV', 'STREAMING', 'REI DO APK', 'PRO'];
+        for(let i=0; i<20; i++){
+            const span = document.createElement('span');
+            span.className = 'floating-label';
+            span.innerText = labels[Math.floor(Math.random()*labels.length)];
+            span.style.left = Math.random()*100 + 'vw';
+            span.style.fontSize = (Math.random()*15 + 10) + 'px';
+            span.style.animationDelay = Math.random()*15 + 's';
+            bgWave.appendChild(span);
+        }
+
+        function formatPhone(el) {
+            let v = el.value.replace(/\D/g, "");
+            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+            v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+            el.value = v;
+        }
+
+        function copy(id, text) {
+            navigator.clipboard.writeText(text);
+            const btn = document.getElementById(id);
+            btn.innerText = "COPIADO!";
+            btn.classList.replace('bg-yellow-500', 'bg-green-500');
+            setTimeout(() => {
+                btn.innerText = "COPIAR";
+                btn.classList.replace('bg-green-500', 'bg-yellow-500');
+            }, 2000);
+        }
+
+        function identifyOperator() {
+            const num = document.getElementById('phone').value.replace(/\D/g, "");
+            if(num.length < 10) return alert("Número inválido!");
+            
+            const digit = num.charAt(2);
+            let op = 'claro';
+            if(digit == '9' || digit == '8') op = 'vivo';
+            else if(digit == '7' || digit == '6') op = 'tim';
+            
+            renderDashboard(op, num);
+        }
+
+        function renderDashboard(opKey, phone) {
+            // Contas
+            const freeList = document.getElementById('free-accounts-list');
+            freeList.innerHTML = "";
+            contasDoadas.forEach((c, i) => {
+                freeList.innerHTML += `<div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700">
+                    <p class="text-[10px] font-black text-yellow-500 uppercase mb-2">${c.app}</p>
+                    <div class="flex gap-2">
+                        <div class="bg-black/50 p-2 rounded-lg text-[10px] font-mono text-slate-400 w-full truncate">${c.login} | ${c.pass}</div>
+                        <button id="cp-${i}" onclick="copy('cp-${i}', '${c.login} | ${c.pass}')" class="bg-yellow-500 text-black px-3 rounded-lg font-black text-[10px]">COPIAR</button>
+                    </div>
+                </div>`;
+            });
+
+            // TV
+            const tvList = document.getElementById('tv-list');
+            tvList.innerHTML = "";
+            canaisTV.forEach(tv => {
+                tvList.innerHTML += `<div onclick="openPlayer('${tv.url}', '${tv.name}')" class="p-5 flex justify-between items-center hover:bg-white/5 cursor-pointer border-b border-slate-800">
+                    <span class="text-xs font-black uppercase italic">${tv.name}</span>
+                    <span class="text-blue-500 text-[10px] font-black">ASSISTIR ▶</span>
+                </div>`;
+            });
+
+            // Streaming
+            const saleList = document.getElementById('streaming-venda-list');
+            saleList.innerHTML = "";
+            vendaStreaming.forEach(s => {
+                saleList.innerHTML += `<div class="p-5 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-black uppercase">${s.icon} ${s.name}</p>
+                        <p class="text-[9px] text-slate-500 font-bold uppercase">${s.dur}</p>
+                    </div>
+                    <button onclick="order('STREAMING', '${s.name}', '${s.price}', '${phone}')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl font-black text-[10px]">R$ ${s.price}</button>
+                </div>`;
+            });
+
+            // Recargas
+            const op = operadoras[opKey];
+            const recList = document.getElementById('recarga-list');
+            document.getElementById('op-header').className = `p-6 rounded-3xl font-black flex justify-between items-center shadow-xl ${op.color}`;
+            document.getElementById('op-name').innerText = op.name;
+            recList.innerHTML = "";
+            op.prices.forEach(p => {
+                recList.innerHTML += `<div class="p-5 flex justify-between items-center">
+                    <span class="text-xs font-black uppercase">Crédito R$ ${p[0].toFixed(2)}</span>
+                    <button onclick="order('RECARGA', '${p[0]}', '${p[1]}', '${phone}')" class="bg-white text-black px-5 py-2 rounded-xl font-black text-[10px]">PAGAR R$ ${p[1].toFixed(2)}</button>
+                </div>`;
+            });
+
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openPlayer(url, title) {
+            const modal = document.getElementById('video-modal');
+            const video = document.getElementById('video-player');
+            document.getElementById('video-title').innerText = title;
+            modal.style.display = 'flex';
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+            } else { video.src = url; }
+        }
+
+        function closePlayer() {
+            const video = document.getElementById('video-player');
+            video.pause();
+            video.src = "";
+            document.getElementById('video-modal').style.display = 'none';
+        }
+
+        function resetApp() {
+            document.getElementById('step-1').classList.remove('hidden');
+            document.getElementById('step-2').classList.add('hidden');
+        }
+
+        function order(tipo, item, valor, num) {
+            const zap = "19999392061";
+            const msg = `👑 *NOVO PEDIDO REI DO APK*\n\n📦 *TIPO:* ${tipo}\n🛒 *ITEM:* ${item}\n📱 *NÚMERO:* ${num}\n💵 *VALOR:* R$ ${valor}\n\n_Aguardando PIX para liberação!_`;
+            window.open(`https://wa.me/${zap}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
