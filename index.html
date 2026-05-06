@@ -2,255 +2,152 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>REI DO APK - Portal VIP</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#020617">
+    <title>REI DO APK - PORTAL VIP</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #020617;
-            color: white;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .area-animada {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-            overflow: hidden;
-        }
-
-        .floating-logo {
-            position: absolute;
-            top: -100px;
-            animation: fall linear infinite;
-            opacity: 0.5;
-        }
-
-        @keyframes fall {
-            to { transform: translateY(110vh) rotate(360deg); }
-        }
-
-        .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .active-category { background-color: #22c55e !important; color: #000 !important; font-weight: 800; }
+        body { font-family: 'Inter', sans-serif; background: #020617; color: white; overflow: hidden; user-select: none; height: 100vh; }
         
-        #videoModal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #000;
-            z-index: 9999;
-            flex-direction: column;
-        }
+        /* AURORA E BACKGROUND */
+        .aurora { position: fixed; width: 400px; height: 400px; filter: blur(80px); z-index: -1; opacity: 0.4; }
+        .aurora-1 { top: -100px; right: -100px; background: #22c55e; }
+        .aurora-2 { bottom: -100px; left: -100px; background: #a855f7; }
 
-        .marquee-container {
-            width: 100%;
-            background: #22c55e;
-            color: #000;
-            font-weight: 900;
-            padding: 8px 0;
-            text-transform: uppercase;
-            overflow: hidden;
-        }
+        /* ANIMAÇÃO LOGOS CAINDO */
+        .falling-icon { position: absolute; top: -100px; animation: fall linear infinite; pointer-events: none; z-index: -1; font-weight: 900; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        .marquee-text {
-            display: inline-block;
-            white-space: nowrap;
-            animation: marquee 20s linear infinite;
-        }
+        /* INTERFACE */
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .active-tab { background: linear-gradient(90deg, #22c55e, #16a34a) !important; color: #000 !important; font-weight: 900; }
+        .card-promo { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .card-promo:active { transform: scale(0.95); border-color: #22c55e; }
 
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
+        /* PLAYER MODAL */
+        #videoModal { display: none; position: fixed; inset: 0; background: #000; z-index: 10000; flex-direction: column; }
+        .player-header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #0f172a; }
+        .expand-btn { background: #22c55e; color: black; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 12px; }
 
-        .btn-whatsapp-float {
-            position: fixed;
-            bottom: 25px; right: 20px;
-            background: #25d366;
-            width: 60px; height: 60px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
-            z-index: 90;
-        }
-
-        .canal-card {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .canal-card:active { transform: scale(0.95); background: #22c55e; }
-        .canal-card:active .play-icon { color: #000; }
-        .canal-card:active .canal-name { color: #000; }
-
-        .input-login {
-            background: rgba(255,255,255,0.05);
-            border: 2px solid rgba(255,255,255,0.1);
-            transition: border-color 0.3s;
-        }
-        .input-login:focus { border-color: #22c55e; outline: none; }
+        /* SCROLL */
+        ::-webkit-scrollbar { width: 0px; }
+        .content-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
     </style>
 </head>
-<body class="antialiased">
+<body>
 
-    <div class="area-animada" id="bg-animation"></div>
+    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
 
-    <a href="https://whatsapp.com/channel/0029Vb7x9mh96H4U6pqjj51h" target="_blank" class="btn-whatsapp-float" id="float-wa" style="display:none">
-        <svg fill="#fff" width="32px" height="32px" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.63 1.438h.008c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    </a>
+    <div id="bg-container" class="fixed inset-0 z-[-1] overflow-hidden"></div>
+    <div class="aurora aurora-1"></div>
+    <div class="aurora aurora-2"></div>
 
-    <div id="login-screen" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-xl">
-        <div class="max-w-sm w-full bg-slate-900 border border-slate-800 p-8 rounded-[40px] shadow-2xl text-center space-y-6">
-            <div class="text-6xl animate-bounce">👑</div>
-            <h2 class="text-3xl font-black text-white italic tracking-tighter">REI DO APK</h2>
-            <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">Portal de Acesso VIP</p>
-            <input type="tel" id="user-phone" placeholder="(00) 00000-0000" class="w-full p-5 rounded-2xl text-center text-xl font-bold input-login outline-none" oninput="maskPhone(this)">
-            <button onclick="checkAccess()" class="w-full bg-green-500 text-black font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Entrar no Reino</button>
+    <div id="login-screen" class="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-slate-950/98 backdrop-blur-2xl">
+        <div class="max-w-sm w-full text-center space-y-8">
+            <div class="text-7xl">👑</div>
+            <h2 class="text-4xl font-black italic tracking-tighter">REI DO APK</h2>
+            <input type="tel" id="user-phone" placeholder="(00) 00000-0000" class="w-full p-5 rounded-2xl bg-white/5 border-2 border-white/10 text-center text-xl font-bold outline-none focus:border-green-500 transition-all">
+            <button onclick="checkAccess()" class="w-full bg-green-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-lg shadow-[0_0_30px_rgba(34,197,94,0.4)]">Entrar no Reino</button>
         </div>
     </div>
 
-    <div id="app-content" class="hidden">
-        <div id="videoModal">
-            <div class="marquee-container">
-                <div class="marquee-text">👑 REI DO APK - PREMIUM STREAMING - QUALIDADE 4K - O MELHOR DO BRASIL - 👑</div>
-            </div>
-            <div class="flex-1 w-full bg-black flex flex-col items-center justify-center relative">
-                <div id="playerRender" class="w-full h-full"></div>
-                <div class="absolute bottom-6 flex gap-4">
-                    <button onclick="closePlayer()" class="bg-red-600 text-white px-6 py-3 rounded-full font-black uppercase text-xs tracking-widest shadow-2xl active:scale-90 transition-all">Sair</button>
-                    <button onclick="closePlayer()" class="bg-green-500 text-black px-10 py-3 rounded-full font-black uppercase text-xs tracking-widest shadow-2xl active:scale-90 transition-all">Escolher Outro</button>
-                </div>
-            </div>
+    <div id="videoModal">
+        <div class="player-header">
+            <button onclick="closePlayer()" class="text-white font-bold">✕ FECHAR</button>
+            <div class="text-green-500 font-black italic">REI DO APK</div>
+            <button onclick="toggleFullScreen()" class="expand-btn">TELA CHEIA</button>
         </div>
+        <div class="flex-1" id="playerWrapper">
+            <div id="playerRender" class="w-full h-full"></div>
+        </div>
+    </div>
 
-        <header class="sticky top-0 z-50 glass px-4 py-4 text-center">
-            <h1 class="text-xl font-black text-white">👑 REI DO APK <span class="text-green-500 italic">VIP</span></h1>
+    <div id="app-content" class="hidden h-screen flex flex-col">
+        <header class="glass p-6 text-center shrink-0">
+            <h1 class="text-2xl font-black italic">👑 REI DO APK <span class="text-green-500">VIP</span></h1>
         </header>
 
-        <nav class="flex justify-center gap-2 mt-6 px-4">
-            <button onclick="switchTab('recharges')" id="btn-recharges" class="tab-btn active-category flex-1 py-3 rounded-2xl text-[10px] font-bold uppercase shadow-lg">Loja VIP</button>
-            <button onclick="switchTab('tv')" id="btn-tv" class="tab-btn bg-slate-800 flex-1 py-3 rounded-2xl text-[10px] font-bold uppercase">Canais de TV</button>
+        <nav class="flex gap-2 p-4 shrink-0 overflow-x-auto">
+            <button onclick="switchTab('recargas')" id="tab-btn-recargas" class="tab-btn active-tab px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap">Recargas & Streaming</button>
+            <button onclick="switchTab('tv')" id="tab-btn-tv" class="tab-btn bg-slate-800 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-slate-400">Canais de TV</button>
+            <button onclick="window.open('https://wa.me/qr/S4RPP4S2GZ5RP1')" class="bg-green-600 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap">Grupo VIP</button>
         </nav>
 
-        <main class="max-w-6xl mx-auto px-4 mt-8 pb-32">
-            <section id="tab-recharges" class="space-y-6">
-                <div class="bg-purple-900/20 border border-purple-500/30 p-5 rounded-[30px]">
-                    <h3 class="font-black text-purple-400 mb-4 flex items-center gap-2">🟣 VIVO PROMO</h3>
-                    <div class="grid gap-2" id="vivo-list"></div>
-                </div>
-                <div class="bg-red-900/20 border border-red-500/30 p-5 rounded-[30px]">
-                    <h3 class="font-black text-red-400 mb-4 flex items-center gap-2">🔴 CLARO PROMO</h3>
+        <main class="content-area">
+            <section id="tab-recargas" class="space-y-6">
+                <div class="p-5 rounded-3xl bg-red-900/10 border border-red-500/30">
+                    <h3 class="text-red-500 font-black mb-4 uppercase text-xs tracking-widest">🔴 CLARO PROMO</h3>
                     <div class="grid gap-2" id="claro-list"></div>
                 </div>
-                <div class="bg-blue-900/20 border border-blue-500/30 p-5 rounded-[30px]">
-                    <h3 class="font-black text-blue-400 mb-4 flex items-center gap-2">🔵 TIM PROMO</h3>
+                <div class="p-5 rounded-3xl bg-blue-900/10 border border-blue-500/30">
+                    <h3 class="text-blue-500 font-black mb-4 uppercase text-xs tracking-widest">🔵 TIM PROMO</h3>
                     <div class="grid gap-2" id="tim-list"></div>
                 </div>
-                <div class="bg-slate-900/80 rounded-[40px] p-6 border border-slate-700">
-                    <h3 class="text-center font-black text-yellow-500 mb-6 uppercase tracking-widest">Streaming Premium</h3>
-                    <div class="grid grid-cols-2 gap-3" id="streaming-grid"></div>
+                <div class="p-5 rounded-3xl bg-purple-900/10 border border-purple-500/30">
+                    <h3 class="text-purple-500 font-black mb-4 uppercase text-xs tracking-widest">🟣 VIVO PROMO</h3>
+                    <div class="grid gap-2" id="vivo-list"></div>
+                </div>
+                <div class="p-6 rounded-[40px] bg-slate-900/80 border border-slate-700">
+                    <h3 class="text-center font-black text-yellow-500 mb-6 uppercase text-xs">👑 Streaming Premium</h3>
+                    <div class="grid grid-cols-2 gap-3" id="stream-grid"></div>
                 </div>
             </section>
 
             <section id="tab-tv" class="hidden">
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3" id="tv-grid"></div>
+                <div class="grid grid-cols-2 gap-3" id="tv-grid"></div>
             </section>
         </main>
     </div>
 
     <script>
-        let USER_PHONE = "";
-        const data = {
-            vivo: [[15,11],[20,12],[25,13],[30,15]],
+        const API_WA = "19999392061"; 
+        let userPhone = "";
+
+        const db = {
             claro: [[20,11],[25,12],[30,13],[35,15],[40,17],[50,20],[60,23],[70,26],[90,33],[100,36],[120,41],[150,48]],
             tim: [[15,7],[20,9],[30,12],[40,16],[50,17],[60,25],[100,35]],
-            streaming: [
-                {n: "Netflix", p: "3.00", i: "🍿"}, {n: "YouTube Premium", p: "1.50", i: "📺"},
+            vivo: [[15,11],[20,12],[25,13],[30,15]],
+            stream: [
+                {n: "Netflix", p: "1.50", i: "🍿"}, {n: "YouTube Prem.", p: "1.50", i: "📺"},
                 {n: "Globoplay", p: "3.00", i: "🎬"}, {n: "HBO Max", p: "3.00", i: "🐉"},
                 {n: "Paramount+", p: "3.00", i: "🏔️"}, {n: "Prime Video", p: "3.00", i: "🎬"},
-                {n: "Apple TV", p: "2.50", i: "🍎"}, {n: "Unitv", p: "1.00", i: "⚡"},
-                {n: "Youcine", p: "1.30", i: "🎬"}
+                {n: "Unitv", p: "1.00", i: "⚡"}, {n: "Youcine", p: "1.00", i: "🎬"}
             ],
-            tv: [
-                {n: "TNT", l: "https://w2.embedtv.live/tnt"}, {n: "SBT SP", l: "https://w2.embedtv.live/sbtsp"},
-                {n: "X Sports", l: "https://w2.embedtv.live/xsports"}, {n: "ESPN", l: "https://w2.embedtv.live/espn"},
-                {n: "ESPN 2", l: "https://w2.embedtv.live/espn2"}, {n: "ESPN 3", l: "https://w2.embedtv.live/espn3"},
-                {n: "ESPN 4", l: "https://w2.embedtv.live/espn4"}, {n: "Paramount+", l: "https://w2.embedtv.live/paramountplus"},
-                {n: "Globo SP", l: "https://w2.embedtv.live/globosp"}, {n: "Globo RJ", l: "https://w2.embedtv.live/globorj"},
-                {n: "Globo MG", l: "https://w2.embedtv.live/globomg"}, {n: "Globo AM", l: "https://w2.embedtv.live/globoam"},
-                {n: "A Casa do Patrão 1", l: "https://w2.embedtv.live/acasadopatrao1"}, {n: "A Casa do Patrão 2", l: "https://w2.embedtv.live/acasadopatrao2"},
-                {n: "A Casa do Patrão 3", l: "https://w2.embedtv.live/acasadopatrao3"}, {n: "A Casa do Patrão 4", l: "https://w2.embedtv.live/acasadopatrao4"},
-                {n: "BandSports", l: "https://w2.embedtv.live/bandsports"}, {n: "Band SP", l: "https://w2.embedtv.live/bandsp"},
-                {n: "Band RJ", l: "https://w2.embedtv.live/bandrj"}, {n: "Band News", l: "https://w2.embedtv.live/bandnews"},
-                {n: "Cazé TV 1", l: "https://w2.embedtv.live/caze1"}, {n: "Cazé TV 2", l: "https://w2.embedtv.live/caze2"},
-                {n: "Cazé TV 3", l: "https://w2.embedtv.live/caze3"}, {n: "Combate", l: "https://w2.embedtv.live/combate"},
-                {n: "Disney+", l: "https://w2.embedtv.live/disneyplus1"}, {n: "Max 1", l: "https://w2.embedtv.live/max1"},
-                {n: "Max 2", l: "https://w2.embedtv.live/max2"}, {n: "A Bola TV", l: "https://w2.embedtv.live/pt_abola"},
-                {n: "Sport TV 1 PT", l: "https://w2.embedtv.live/pt_sportv1"}, {n: "Sport TV 2 PT", l: "https://w2.embedtv.live/pt_sportv2"},
-                {n: "Sport TV 3 PT", l: "https://w2.embedtv.live/pt_sportv3"}, {n: "Sport TV 4 PT", l: "https://w2.embedtv.live/pt_sportv4"},
-                {n: "Sport TV 5 PT", l: "https://w2.embedtv.live/pt_sportv5"}, {n: "Premiere 1", l: "https://w2.embedtv.live/premiere"},
-                {n: "Premiere 2", l: "https://w2.embedtv.live/premiere2"}, {n: "Prime Video 1", l: "https://w2.embedtv.live/primevideo"},
-                {n: "Prime Video 2", l: "https://w2.embedtv.live/primevideo2"}, {n: "SporTV", l: "https://w2.embedtv.live/sportv"},
-                {n: "SporTV 2", l: "https://w2.embedtv.live/sportv2"}, {n: "SporTV 3", l: "https://w2.embedtv.live/sportv3"},
-                {n: "SporTV 4", l: "https://w2.embedtv.live/sportv4"}, {n: "UFC Fight Pass", l: "https://w2.embedtv.live/ufcfightpass"},
-                {n: "Chaves 24h", l: "https://w2.embedtv.live/24h_chaves"}, {n: "Dragon Ball 24h", l: "https://w2.embedtv.live/24h_dragonball"},
-                {n: "Naruto 24h", l: "https://w2.embedtv.live/24h_naruto"}, {n: "Simpsons 24h", l: "https://w2.embedtv.live/24h_simpsons"},
-                {n: "Chris 24h", l: "https://w2.embedtv.live/24h_odeiachris"}, {n: "Cartoon Network", l: "https://w2.embedtv.live/cartoonnetwork"},
-                {n: "Cartoonito", l: "https://w2.embedtv.live/cartoonito"}, {n: "Discovery Kids", l: "https://w2.embedtv.live/discoverykids"},
-                {n: "Gloob", l: "https://w2.embedtv.live/gloob"}, {n: "Animal Planet", l: "https://w2.embedtv.live/animalplanet"},
-                {n: "Discovery Channel", l: "https://w2.embedtv.live/discoverychannel"}, {n: "Discovery H&H", l: "https://w2.embedtv.live/discoveryhh"},
-                {n: "Discovery ID", l: "https://w2.embedtv.live/discoveryid"}, {n: "History", l: "https://w2.embedtv.live/history"},
-                {n: "History 2", l: "https://w2.embedtv.live/history2"}, {n: "A&E", l: "https://w2.embedtv.live/ae"},
-                {n: "AMC", l: "https://w2.embedtv.live/amc"}, {n: "AXN", l: "https://w2.embedtv.live/axn"},
-                {n: "Adult Swim", l: "https://w2.embedtv.live/adultswim"}, {n: "Cinemax", l: "https://w2.embedtv.live/cinemax"},
-                {n: "HBO", l: "https://w2.embedtv.live/hbo"}, {n: "HBO 2", l: "https://w2.embedtv.live/hbo2"},
-                {n: "HBO Family", l: "https://w2.embedtv.live/hbofamily"}, {n: "HBO Mundi", l: "https://w2.embedtv.live/hbomundi"},
-                {n: "HBO Pop", l: "https://w2.embedtv.live/hbopop"}, {n: "HBO Xtreme", l: "https://w2.embedtv.live/hboxtreme"},
-                {n: "Megapix", l: "https://w2.embedtv.live/megapix"}, {n: "Sony Channel", l: "https://w2.embedtv.live/sonychannel"},
-                {n: "Space", l: "https://w2.embedtv.live/space"}, {n: "TNT Novelas", l: "https://w2.embedtv.live/tntnovelas"},
-                {n: "CNN Brasil", l: "https://w2.embedtv.live/cnnbrasil"}, {n: "GloboNews", l: "https://w2.embedtv.live/globonews"},
-                {n: "Record SP", l: "https://w2.embedtv.live/recordsp"}, {n: "SBT RJ", l: "https://w2.embedtv.live/sbtrj"}
+            canais: [
+                {n: "TNT", u: "https://w2.embedtv.live/tnt"}, {n: "SBT SP", u: "https://w2.embedtv.live/sbtsp"},
+                {n: "ESPN", u: "https://w2.embedtv.live/espn"}, {n: "Globo SP", u: "https://w2.embedtv.live/globosp"},
+                {n: "Combate", u: "https://w2.embedtv.live/combate"}, {n: "SporTV", u: "https://w2.embedtv.live/sportv"},
+                {n: "Cazé TV", u: "https://w2.embedtv.live/caze1"}, {n: "Disney+", u: "https://w2.embedtv.live/disneyplus1"},
+                {n: "Premiere", u: "https://w2.embedtv.live/premiere"}, {n: "Discovery Kids", u: "https://w2.embedtv.live/discoverykids"},
+                {n: "History", u: "https://w2.embedtv.live/history"}, {n: "HBO", u: "https://w2.embedtv.live/hbo"},
+                {n: "Dragon Ball 24h", u: "https://w2.embedtv.live/24h_dragonball"}, {n: "Chaves 24h", u: "https://w2.embedtv.live/24h_chaves"}
             ]
         };
 
-        function maskPhone(i) {
-            let v = i.value.replace(/\D/g, "");
-            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-            v = v.replace(/(\d)(\d{4})$/, "$1-$2");
-            i.value = v;
-        }
+        function playSound() { document.getElementById('clickSound').play(); }
 
         function checkAccess() {
-            const phone = document.getElementById('user-phone').value;
-            if(phone.length >= 14) {
-                USER_PHONE = phone;
-                document.getElementById('login-screen').classList.add('hidden');
+            playSound();
+            const input = document.getElementById('user-phone').value;
+            if(input.length >= 14) {
+                userPhone = input;
+                document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-content').classList.remove('hidden');
-                document.getElementById('float-wa').style.display = 'flex';
-            } else {
-                alert("Digite seu WhatsApp para entrar.");
-            }
+            } else { alert("Rei, digite seu Whats primeiro!"); }
         }
 
-        function switchTab(tab) {
+        function switchTab(t) {
+            playSound();
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-category', 'bg-slate-800'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            document.getElementById('btn-' + tab).classList.add('active-category');
-            if(tab === 'recharges') document.getElementById('btn-tv').classList.add('bg-slate-800');
-            else document.getElementById('btn-recharges').classList.add('bg-slate-800');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab', 'bg-slate-800'));
+            document.getElementById('tab-'+t).classList.remove('hidden');
+            document.getElementById('tab-btn-'+t).classList.add('active-tab');
         }
 
-        function openPlayer(url) {
-            document.getElementById('playerRender').innerHTML = `<iframe src="${url}" class="w-full h-full" allowfullscreen allow="autoplay; fullscreen"></iframe>`;
+        function openPlayer(u) {
+            playSound();
+            document.getElementById('playerRender').innerHTML = `<iframe src="${u}" class="w-full h-full" allowfullscreen allow="autoplay"></iframe>`;
             document.getElementById('videoModal').style.display = 'flex';
         }
 
@@ -259,63 +156,73 @@
             document.getElementById('playerRender').innerHTML = '';
         }
 
-        function render() {
-            ['vivo', 'claro', 'tim'].forEach(op => {
-                const list = document.getElementById(op + '-list');
-                data[op].forEach(([v, p]) => {
-                    list.innerHTML += `
-                        <div class="flex justify-between items-center bg-slate-900/60 p-4 rounded-2xl border border-white/5">
-                            <span class="font-bold text-sm">Recarga R$ ${v},00</span>
-                            <button onclick="sendOrder('${p}', 'Recarga ${op.toUpperCase()} ${v}')" class="bg-green-500 text-black px-4 py-2 rounded-xl font-black italic shadow-lg">R$ ${p},00 🔥</button>
-                        </div>`;
-                });
-            });
-
-            const sGrid = document.getElementById('streaming-grid');
-            data.streaming.forEach(s => {
-                sGrid.innerHTML += `
-                    <div class="bg-slate-800/40 p-5 rounded-[35px] text-center border border-white/5">
-                        <div class="text-3xl mb-1">${s.i}</div>
-                        <div class="text-[11px] font-black uppercase text-white mb-2">${s.n}</div>
-                        <button onclick="sendOrder('${s.p}', '${s.n}')" class="w-full bg-yellow-500 text-black text-[10px] font-black py-3 rounded-2xl uppercase">R$ ${s.p}</button>
-                    </div>`;
-            });
-
-            const tvGrid = document.getElementById('tv-grid');
-            data.tv.forEach(ch => {
-                tvGrid.innerHTML += `
-                    <div onclick="openPlayer('${ch.l}')" class="canal-card p-4 rounded-[25px] text-center cursor-pointer relative overflow-hidden group">
-                        <div class="play-icon text-green-500 text-2xl mb-2 group-hover:scale-125 transition-transform duration-300">▶</div>
-                        <div class="canal-name text-[9px] font-extrabold uppercase text-slate-300 leading-tight">${ch.n}</div>
-                    </div>`;
-            });
+        function toggleFullScreen() {
+            const elem = document.getElementById('playerWrapper');
+            if (elem.requestFullscreen) elem.requestFullscreen();
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
         }
 
-        function sendOrder(val, item) {
+        function sendOrder(item, valor) {
+            playSound();
             const pixKey = "19999392061";
             navigator.clipboard.writeText(pixKey);
-            const msg = encodeURIComponent(`👑 *NOVO PEDIDO - REI DO APK*\n\n👤 *Cliente:* ${USER_PHONE}\n📦 *Produto:* ${item}\n💰 *Valor:* R$ ${val}\n\n_Já copiei a chave PIX, enviando comprovante!_`);
-            alert(`✅ Chave PIX Copiada!\n\nValor: R$ ${val}\nItem: ${item}`);
-            window.open(`https://wa.me/19999392061?text=${msg}`, '_blank');
+            const msg = encodeURIComponent(`👑 *PEDIDO REI DO APK*\n\n👤 *Cliente:* ${userPhone}\n📦 *Produto:* ${item}\n💰 *Valor:* R$ ${valor}\n\n_Já copiei o PIX, aguardando envio do comprovante!_`);
+            alert("✅ Chave PIX Copiada!");
+            window.open(`https://wa.me/${API_WA}?text=${msg}`, '_blank');
         }
 
-        function initBg() {
-            const container = document.getElementById('bg-animation');
-            const icons = ['📱', '🍿', '👑', '📺', '🎬', '📡', '🔥', '✅', '💰'];
-            for(let i=0; i<30; i++) {
+        function render() {
+            // Recargas
+            ['claro', 'tim', 'vivo'].forEach(op => {
+                const list = document.getElementById(op+'-list');
+                db[op].forEach(([v, p]) => {
+                    list.innerHTML += `
+                    <div class="card-promo flex justify-between items-center p-4 rounded-2xl mb-2">
+                        <span class="font-bold">Recarga R$ ${v},00</span>
+                        <button onclick="sendOrder('Recarga ${op.toUpperCase()} ${v}', '${p}')" class="bg-green-500 text-black px-4 py-2 rounded-xl font-black text-xs">Pague R$ ${p},00</button>
+                    </div>`;
+                });
+            });
+            // Streaming
+            db.stream.forEach(s => {
+                document.getElementById('stream-grid').innerHTML += `
+                <div class="card-promo p-4 rounded-3xl text-center">
+                    <div class="text-2xl mb-2">${s.i}</div>
+                    <div class="text-[10px] font-black uppercase mb-3">${s.n}</div>
+                    <button onclick="sendOrder('${s.n}', '${s.p}')" class="w-full bg-yellow-500 text-black py-2 rounded-xl font-black text-[10px]">R$ ${s.p}</button>
+                </div>`;
+            });
+            // Canais
+            db.canais.forEach(c => {
+                document.getElementById('tv-grid').innerHTML += `
+                <div onclick="openPlayer('${c.u}')" class="card-promo p-5 rounded-3xl text-center cursor-pointer">
+                    <div class="text-green-500 font-black mb-2 italic">PLAY</div>
+                    <div class="text-[10px] font-black uppercase">${c.n}</div>
+                </div>`;
+            });
+        }
+
+        function startFalling() {
+            const container = document.getElementById('bg-container');
+            const icons = [
+                {t: 'VIVO', c: '#a855f7'}, {t: 'CLARO', c: '#ef4444'}, {t: 'TIM', c: '#3b82f6'},
+                {t: 'NETFLIX', c: '#e50914'}, {t: 'HBO', c: '#ffffff'}, {t: 'KING', c: '#eab308'}
+            ];
+            setInterval(() => {
+                const icon = icons[Math.floor(Math.random()*icons.length)];
                 const el = document.createElement('div');
-                el.className = 'floating-logo';
-                el.innerText = icons[Math.floor(Math.random()*icons.length)];
+                el.className = 'falling-icon';
                 el.style.left = Math.random() * 100 + 'vw';
-                el.style.fontSize = (Math.random() * 20 + 20) + 'px';
-                el.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                el.style.animationDelay = Math.random() * 5 + 's';
+                el.style.color = icon.c;
+                el.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                el.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                el.innerText = icon.t;
                 container.appendChild(el);
-            }
+                setTimeout(() => el.remove(), 10000);
+            }, 500);
         }
 
-        initBg();
-        render();
+        render(); startFalling();
     </script>
 </body>
 </html>
