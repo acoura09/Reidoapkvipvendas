@@ -10,127 +10,193 @@
     <style>
         body { font-family: 'Inter', sans-serif; background: #020617; color: white; overflow: hidden; user-select: none; height: 100vh; }
         
-        /* AURORA E BACKGROUND */
         .aurora { position: fixed; width: 400px; height: 400px; filter: blur(80px); z-index: -1; opacity: 0.4; }
         .aurora-1 { top: -100px; right: -100px; background: #22c55e; }
         .aurora-2 { bottom: -100px; left: -100px; background: #a855f7; }
 
-        /* ANIMAÇÃO LOGOS CAINDO */
-        .falling-icon { position: absolute; top: -100px; animation: fall linear infinite; pointer-events: none; z-index: -1; font-weight: 900; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+        .falling-icon { position: absolute; top: -100px; animation: fall linear infinite; pointer-events: none; z-index: -1; font-weight: 900; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); white-space: nowrap; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        /* INTERFACE */
         .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.1); }
         .active-tab { background: linear-gradient(90deg, #22c55e, #16a34a) !important; color: #000 !important; font-weight: 900; }
-        .card-promo { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .card-promo { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; position: relative; overflow: hidden; }
         .card-promo:active { transform: scale(0.95); border-color: #22c55e; }
 
-        /* PLAYER MODAL */
         #videoModal { display: none; position: fixed; inset: 0; background: #000; z-index: 10000; flex-direction: column; }
-        .player-header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #0f172a; }
-        .expand-btn { background: #22c55e; color: black; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 12px; }
+        .player-header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #0f172a; border-bottom: 1px solid #22c55e; }
+        
+        #watermark { position: absolute; top: 20%; left: -200px; color: rgba(34, 197, 94, 0.6); font-weight: 900; font-size: 24px; pointer-events: none; z-index: 10001; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        @keyframes slideMark { 0% { left: -200px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 110%; opacity: 0; } }
 
-        /* SCROLL */
-        ::-webkit-scrollbar { width: 0px; }
-        .content-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        .content-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; }
+        .copy-badge { background: #22c55e; color: #000; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
     <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
-
     <div id="bg-container" class="fixed inset-0 z-[-1] overflow-hidden"></div>
     <div class="aurora aurora-1"></div>
     <div class="aurora aurora-2"></div>
 
+    <!-- TELA LOGIN -->
     <div id="login-screen" class="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-slate-950/98 backdrop-blur-2xl">
         <div class="max-w-sm w-full text-center space-y-8">
-            <div class="text-7xl">👑</div>
-            <h2 class="text-4xl font-black italic tracking-tighter">REI DO APK</h2>
-            <input type="tel" id="user-phone" placeholder="(00) 00000-0000" class="w-full p-5 rounded-2xl bg-white/5 border-2 border-white/10 text-center text-xl font-bold outline-none focus:border-green-500 transition-all">
+            <div class="text-7xl animate-bounce">👑</div>
+            <div>
+                <h2 class="text-4xl font-black italic tracking-tighter">REI DO APK</h2>
+                <p class="text-green-500 font-bold text-sm tracking-widest uppercase">Coloque seu WhatsApp com 55 + DDD</p>
+            </div>
+            <input type="tel" id="user-phone" placeholder="5511999999999" class="w-full p-5 rounded-2xl bg-white/5 border-2 border-white/10 text-center text-xl font-bold outline-none focus:border-green-500 transition-all text-white">
             <button onclick="checkAccess()" class="w-full bg-green-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-lg shadow-[0_0_30px_rgba(34,197,94,0.4)]">Entrar no Reino</button>
         </div>
     </div>
 
+    <!-- MODAL PLAYER -->
     <div id="videoModal">
+        <div id="watermark">👑 REI DO APK</div>
         <div class="player-header">
-            <button onclick="closePlayer()" class="text-white font-bold">✕ FECHAR</button>
-            <div class="text-green-500 font-black italic">REI DO APK</div>
-            <button onclick="toggleFullScreen()" class="expand-btn">TELA CHEIA</button>
+            <button onclick="closePlayer()" class="text-white font-black text-xs">✕ SAIR</button>
+            <div class="text-green-500 font-black italic text-sm">REI DO APK TV</div>
+            <button onclick="toggleFullScreen()" class="bg-green-500 text-black px-4 py-2 rounded-lg font-black text-[10px]">TELA CHEIA</button>
         </div>
-        <div class="flex-1" id="playerWrapper">
+        <div class="flex-1 relative" id="playerWrapper">
             <div id="playerRender" class="w-full h-full"></div>
         </div>
     </div>
 
+    <!-- CONTEÚDO APP -->
     <div id="app-content" class="hidden h-screen flex flex-col">
-        <header class="glass p-6 text-center shrink-0">
-            <h1 class="text-2xl font-black italic">👑 REI DO APK <span class="text-green-500">VIP</span></h1>
+        <header class="glass p-5 text-center shrink-0">
+            <h1 class="text-xl font-black italic">👑 REI DO APK <span class="text-green-500">VIP</span></h1>
         </header>
 
-        <nav class="flex gap-2 p-4 shrink-0 overflow-x-auto">
-            <button onclick="switchTab('recargas')" id="tab-btn-recargas" class="tab-btn active-tab px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap">Recargas & Streaming</button>
-            <button onclick="switchTab('tv')" id="tab-btn-tv" class="tab-btn bg-slate-800 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-slate-400">Canais de TV</button>
-            <button onclick="window.open('https://wa.me/qr/S4RPP4S2GZ5RP1')" class="bg-green-600 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap">Grupo VIP</button>
+        <nav class="flex gap-2 p-4 shrink-0 overflow-x-auto no-scrollbar">
+            <button onclick="switchTab('recargas')" id="tab-btn-recargas" class="tab-btn active-tab px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap">Vendas & Recargas</button>
+            <button onclick="switchTab('tv')" id="tab-btn-tv" class="tab-btn bg-slate-800 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-slate-400">Canais ao Vivo</button>
+            <button onclick="switchTab('doadas')" id="tab-btn-doadas" class="tab-btn bg-yellow-600/20 border border-yellow-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-yellow-500">Contas Doadas 🎁</button>
         </nav>
 
         <main class="content-area">
+            <!-- ABA VENDAS -->
             <section id="tab-recargas" class="space-y-6">
-                <div class="p-5 rounded-3xl bg-red-900/10 border border-red-500/30">
-                    <h3 class="text-red-500 font-black mb-4 uppercase text-xs tracking-widest">🔴 CLARO PROMO</h3>
-                    <div class="grid gap-2" id="claro-list"></div>
-                </div>
-                <div class="p-5 rounded-3xl bg-blue-900/10 border border-blue-500/30">
-                    <h3 class="text-blue-500 font-black mb-4 uppercase text-xs tracking-widest">🔵 TIM PROMO</h3>
-                    <div class="grid gap-2" id="tim-list"></div>
-                </div>
-                <div class="p-5 rounded-3xl bg-purple-900/10 border border-purple-500/30">
-                    <h3 class="text-purple-500 font-black mb-4 uppercase text-xs tracking-widest">🟣 VIVO PROMO</h3>
-                    <div class="grid gap-2" id="vivo-list"></div>
-                </div>
-                <div class="p-6 rounded-[40px] bg-slate-900/80 border border-slate-700">
-                    <h3 class="text-center font-black text-yellow-500 mb-6 uppercase text-xs">👑 Streaming Premium</h3>
+                <div class="p-6 rounded-[35px] bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 shadow-2xl">
+                    <h3 class="text-center font-black text-yellow-500 mb-6 uppercase text-xs tracking-tighter">📺 STREAMING & TV ONLINE</h3>
                     <div class="grid grid-cols-2 gap-3" id="stream-grid"></div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="p-5 rounded-3xl bg-purple-900/10 border border-purple-500/30">
+                        <h3 class="text-purple-500 font-black mb-4 uppercase text-[10px]">🟣 VIVO PROMO</h3>
+                        <div class="grid gap-2" id="vivo-list"></div>
+                    </div>
+                    <div class="p-5 rounded-3xl bg-red-900/10 border border-red-500/30">
+                        <h3 class="text-red-500 font-black mb-4 uppercase text-[10px]">🔴 CLARO PROMO</h3>
+                        <div class="grid gap-2" id="claro-list"></div>
+                    </div>
+                    <div class="p-5 rounded-3xl bg-blue-900/10 border border-blue-500/30">
+                        <h3 class="text-blue-500 font-black mb-4 uppercase text-[10px]">🔵 TIM PROMO</h3>
+                        <div class="grid gap-2" id="tim-list"></div>
+                    </div>
                 </div>
             </section>
 
+            <!-- ABA CANAIS -->
             <section id="tab-tv" class="hidden">
                 <div class="grid grid-cols-2 gap-3" id="tv-grid"></div>
             </section>
+
+            <!-- ABA DOADAS -->
+            <section id="tab-doadas" class="hidden">
+                <div class="bg-yellow-500/10 border-2 border-dashed border-yellow-500/30 p-6 rounded-[40px] text-center mb-6">
+                    <h2 class="text-xl font-black text-yellow-500 uppercase italic">Contas Free do Rei</h2>
+                    <p class="text-[10px] text-slate-400 mt-2">Clique para copiar o login e aproveite!</p>
+                </div>
+                <div class="grid gap-3" id="doadas-list"></div>
+            </section>
         </main>
+
+        <footer class="fixed bottom-0 left-0 right-0 p-4 glass flex justify-center">
+            <button onclick="window.open('https://wa.me/qr/S4RPP4S2GZ5RP1')" class="w-full max-w-xs bg-green-600 py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-green-900/20">Falar com Suporte Rei</button>
+        </footer>
     </div>
 
     <script>
         const API_WA = "19999392061"; 
         let userPhone = "";
 
+        // Códigos PIX por valor atualizados
+        const pixCodes = {
+            "3.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654043.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304317E",
+            "1.30": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654041.305802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304952B",
+            "1.50": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654041.505802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***63046C5C",
+            "4.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654044.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304692D",
+            "5.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654045.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***63041C8B",
+            "7.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654047.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304F7C7",
+            "8.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654048.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***630432C7",
+            "9.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654049.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***63044761",
+            "11.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540511.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304FEF4",
+            "12.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540512.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304601E",
+            "13.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540513.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***630415B8",
+            "14.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540514.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***63044DEB",
+            "15.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540515.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304384D",
+            "16.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540516.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304A6A7",
+            "17.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540517.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304D301",
+            "20.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540520.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***63040325",
+            "23.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540523.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***63049DCF",
+            "25.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540525.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304B03A",
+            "26.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540526.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***63042ED0",
+            "33.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540533.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***630415FD",
+            "35.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540535.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***63043808",
+            "36.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540536.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304A6E2",
+            "41.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540541.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304764C",
+            "48.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e4520400005303986540548.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***63049EB9"
+        };
+
         const db = {
+            doadas: [
+                {servico: "DISNEY", login: "x-anja@arcor.de", senha: "Timure0706!", info: "Perfil 03"},
+                {servico: "HBO MAX", login: "pablo.astudillo.e@gmail.com", senha: "Konejox6914@", info: "Acesso Free"},
+                {servico: "CLARO TV", login: "032.796.141-47", senha: "15902381Lm@", info: "Assinante VIP"}
+            ],
             claro: [[20,11],[25,12],[30,13],[35,15],[40,17],[50,20],[60,23],[70,26],[90,33],[100,36],[120,41],[150,48]],
             tim: [[15,7],[20,9],[30,12],[40,16],[50,17],[60,25],[100,35]],
             vivo: [[15,11],[20,12],[25,13],[30,15]],
             stream: [
-                {n: "Netflix", p: "3.00", i: "🍿"}, {n: "YouTube Prem.", p: "1.50", i: "📺"},
-                {n: "Globoplay", p: "3.00", i: "🎬"}, {n: "HBO Max", p: "3.00", i: "🐉"},
-                {n: "Paramount+", p: "3.00", i: "🏔️"}, {n: "Prime Video", p: "3.00", i: "🎬"},
-                {n: "Unitv", p: "1.30", i: "⚡"}, {n: "Youcine", p: "1.30", i: "🎬"}
+                {n: "Netflix", p: "3.00", d: "Mensal", i: "🍿"},
+                {n: "YouTube Prem.", p: "1.50", d: "Mensal", i: "📺"},
+                {n: "Globoplay", p: "3.00", d: "Mensal", i: "🎬"},
+                {n: "HBO Max", p: "8.00", d: "Mensal", i: "🐉"},
+                {n: "Paramount+", p: "5.00", d: "30 Dias", i: "🏔️"},
+                {n: "Prime Video", p: "8.00", d: "30 Dias", i: "🎬"},
+                {n: "Apple TV", p: "8.00", d: "30 Dias", i: "🍎"},
+                {n: "Unitv", p: "1.30", d: "8 Dias", i: "⚡"},
+                {n: "Youcine", p: "1.30", d: "8 Dias", i: "🎬"},
+                {n: "Claro TV", p: "4.00", d: "30 Dias", i: "📦"},
+                {n: "Claro + Premiere", p: "8.00", d: "30 Dias", i: "⚽"},
+                {n: "UNITV CONFIG", p: "5.00", d: "Ativação", i: "🛠️"}
             ],
             canais: [
                 {n: "TNT", u: "https://w2.embedtv.live/tnt"}, {n: "SBT SP", u: "https://w2.embedtv.live/sbtsp"},
-                {n: "ESPN", u: "https://w2.embedtv.live/espn"}, {n: "Globo SP", u: "https://w2.embedtv.live/globosp"},
-                {n: "Combate", u: "https://w2.embedtv.live/combate"}, {n: "SporTV", u: "https://w2.embedtv.live/sportv"},
-                {n: "Cazé TV", u: "https://w2.embedtv.live/caze1"}, {n: "Disney+", u: "https://w2.embedtv.live/disneyplus1"},
-                {n: "Premiere", u: "https://w2.embedtv.live/premiere"}, {n: "Discovery Kids", u: "https://w2.embedtv.live/discoverykids"},
-                {n: "History", u: "https://w2.embedtv.live/history"}, {n: "HBO", u: "https://w2.embedtv.live/hbo"},
-                {n: "Dragon Ball 24h", u: "https://w2.embedtv.live/24h_dragonball"}, {n: "Chaves 24h", u: "https://w2.embedtv.live/24h_chaves"}
+                {n: "X SPORTS", u: "https://w2.embedtv.live/xsports"}, {n: "ESPN 3", u: "https://w2.embedtv.live/espn3"},
+                {n: "PARAMOUNT+", u: "https://w2.embedtv.live/paramountplus"}, {n: "ESPN", u: "https://w2.embedtv.live/espn"},
+                {n: "GLOBO SP", u: "https://w2.embedtv.live/globosp"}, {n: "CASA PATRAO 1", u: "https://w2.embedtv.live/acasadopatrao1"},
+                {n: "BAND SPORTS", u: "https://w2.embedtv.live/bandsports"}, {n: "CAZÉ TV 1", u: "https://w2.embedtv.live/caze1"},
+                {n: "COMBATE", u: "https://w2.embedtv.live/combate"}, {n: "DISNEY+", u: "https://w2.embedtv.live/disneyplus1"},
+                {n: "PREMIERE", u: "https://w2.embedtv.live/premiere"}, {n: "SPORTV", u: "https://w2.embedtv.live/sportv"},
+                {n: "DRAGON BALL 24H", u: "https://w2.embedtv.live/24h_dragonball"}, {n: "CHAVES 24H", u: "https://w2.embedtv.live/24h_chaves"},
+                {n: "CARTOON", u: "https://w2.embedtv.live/cartoonnetwork"}, {n: "HISTORY", u: "https://w2.embedtv.live/history"},
+                {n: "HBO", u: "https://w2.embedtv.live/hbo"}
             ]
         };
 
-        function playSound() { document.getElementById('clickSound').play(); }
+        function playSound() { document.getElementById('clickSound').play().catch(()=>{}); }
 
         function checkAccess() {
             playSound();
             const input = document.getElementById('user-phone').value;
-            if(input.length >= 14) {
+            if(input.length >= 10) {
                 userPhone = input;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-content').classList.remove('hidden');
@@ -145,15 +211,33 @@
             document.getElementById('tab-btn-'+t).classList.add('active-tab');
         }
 
+        function copyAccount(text) {
+            navigator.clipboard.writeText(text);
+            alert("Copiado com sucesso!");
+        }
+
         function openPlayer(u) {
             playSound();
             document.getElementById('playerRender').innerHTML = `<iframe src="${u}" class="w-full h-full" allowfullscreen allow="autoplay"></iframe>`;
             document.getElementById('videoModal').style.display = 'flex';
+            startWatermark();
+        }
+
+        function startWatermark() {
+            const mark = document.getElementById('watermark');
+            const cycle = () => {
+                mark.style.animation = 'none';
+                mark.offsetHeight;
+                mark.style.animation = 'slideMark 8s linear forwards';
+            };
+            cycle();
+            window.waterInterval = setInterval(cycle, 60000);
         }
 
         function closePlayer() {
             document.getElementById('videoModal').style.display = 'none';
             document.getElementById('playerRender').innerHTML = '';
+            clearInterval(window.waterInterval);
         }
 
         function toggleFullScreen() {
@@ -164,62 +248,54 @@
 
         function sendOrder(item, valor) {
             playSound();
-            const pixKey = "19999392061";
-            navigator.clipboard.writeText(pixKey);
-            const msg = encodeURIComponent(`👑 *PEDIDO REI DO APK*\n\n👤 *Cliente:* ${userPhone}\n📦 *Produto:* ${item}\n💰 *Valor:* R$ ${valor}\n\n_Já copiei o PIX, aguardando envio do comprovante!_`);
-            alert("✅ Chave PIX Copiada!");
-            window.open(`https://wa.me/${API_WA}?text=${msg}`, '_blank');
+            
+            // Garante que o valor tenha o formato correto para busca (ex: "12.00")
+            const formattedValue = parseFloat(valor).toFixed(2);
+            const pixToCopy = pixCodes[formattedValue] || API_WA;
+            
+            navigator.clipboard.writeText(pixToCopy).then(() => {
+                const msg = encodeURIComponent(`👑 *PEDIDO REI DO APK*\n\n👤 *Cliente:* ${userPhone}\n📦 *Produto:* ${item}\n💰 *Valor:* R$ ${valor}\n\n_Já copiei o PIX do valor exato, aguardando ativação!_`);
+                alert("✅ PIX COPIA E COLA DO VALOR COPIADO!");
+                window.open(`https://wa.me/${API_WA}?text=${msg}`, '_blank');
+            });
         }
 
         function render() {
-            // Recargas
             ['claro', 'tim', 'vivo'].forEach(op => {
                 const list = document.getElementById(op+'-list');
                 db[op].forEach(([v, p]) => {
-                    list.innerHTML += `
-                    <div class="card-promo flex justify-between items-center p-4 rounded-2xl mb-2">
-                        <span class="font-bold">Recarga R$ ${v},00</span>
-                        <button onclick="sendOrder('Recarga ${op.toUpperCase()} ${v}', '${p}')" class="bg-green-500 text-black px-4 py-2 rounded-xl font-black text-xs">Pague R$ ${p},00</button>
-                    </div>`;
+                    list.innerHTML += `<div class="card-promo flex justify-between items-center p-4 rounded-2xl mb-2"><span class="font-bold text-sm text-slate-300">Recarga R$ ${v},00</span><button onclick="sendOrder('Recarga ${op.toUpperCase()} ${v}', '${p}.00')" class="bg-green-500 text-black px-4 py-2 rounded-xl font-black text-[10px]">Pague R$ ${p},00</button></div>`;
                 });
             });
-            // Streaming
+
             db.stream.forEach(s => {
-                document.getElementById('stream-grid').innerHTML += `
-                <div class="card-promo p-4 rounded-3xl text-center">
-                    <div class="text-2xl mb-2">${s.i}</div>
-                    <div class="text-[10px] font-black uppercase mb-3">${s.n}</div>
-                    <button onclick="sendOrder('${s.n}', '${s.p}')" class="w-full bg-yellow-500 text-black py-2 rounded-xl font-black text-[10px]">R$ ${s.p}</button>
-                </div>`;
+                document.getElementById('stream-grid').innerHTML += `<div class="card-promo p-4 rounded-3xl text-center"><div class="text-2xl mb-1">${s.i}</div><div class="text-[9px] font-black uppercase mb-1 text-slate-200">${s.n}</div><div class="text-[8px] text-slate-500 mb-3">${s.d}</div><button onclick="sendOrder('${s.n}', '${s.p}')" class="w-full bg-yellow-500 text-black py-2 rounded-xl font-black text-[10px]">R$ ${s.p}</button></div>`;
             });
-            // Canais
+
             db.canais.forEach(c => {
-                document.getElementById('tv-grid').innerHTML += `
-                <div onclick="openPlayer('${c.u}')" class="card-promo p-5 rounded-3xl text-center cursor-pointer">
-                    <div class="text-green-500 font-black mb-2 italic">PLAY</div>
-                    <div class="text-[10px] font-black uppercase">${c.n}</div>
-                </div>`;
+                document.getElementById('tv-grid').innerHTML += `<div onclick="openPlayer('${c.u}')" class="card-promo p-5 rounded-3xl text-center cursor-pointer border-l-4 border-l-green-500"><div class="text-green-500 font-black mb-1 italic text-xs">ONLINE</div><div class="text-[9px] font-black uppercase tracking-tighter">${c.n}</div></div>`;
+            });
+
+            db.doadas.forEach(d => {
+                document.getElementById('doadas-list').innerHTML += `<div class="card-promo p-5 rounded-[30px] border border-yellow-500/20"><div class="flex justify-between items-start mb-4"><span class="text-yellow-500 font-black text-xs italic">${d.servico}</span><span class="text-[8px] text-slate-500">${d.info}</span></div><div class="space-y-2"><div onclick="copyAccount('${d.login}')" class="bg-white/5 p-3 rounded-xl flex justify-between items-center cursor-pointer"><span class="text-[10px] truncate w-4/5">${d.login}</span><span class="copy-badge">LOGIN</span></div><div onclick="copyAccount('${d.senha}')" class="bg-white/5 p-3 rounded-xl flex justify-between items-center cursor-pointer"><span class="text-[10px]">${d.senha}</span><span class="copy-badge">SENHA</span></div></div></div>`;
             });
         }
 
         function startFalling() {
             const container = document.getElementById('bg-container');
-            const icons = [
-                {t: 'VIVO', c: '#a855f7'}, {t: 'CLARO', c: '#ef4444'}, {t: 'TIM', c: '#3b82f6'},
-                {t: 'NETFLIX', c: '#e50914'}, {t: 'HBO', c: '#ffffff'}, {t: 'KING', c: '#eab308'}
-            ];
+            const icons = [{t: 'VIVO', c: '#a855f7'}, {t: 'CLARO', c: '#ef4444'}, {t: 'TIM', c: '#3b82f6'}, {t: 'NETFLIX', c: '#e50914'}, {t: 'HBO', c: '#ffffff'}, {t: 'KING', c: '#eab308'}];
             setInterval(() => {
                 const icon = icons[Math.floor(Math.random()*icons.length)];
                 const el = document.createElement('div');
                 el.className = 'falling-icon';
                 el.style.left = Math.random() * 100 + 'vw';
                 el.style.color = icon.c;
-                el.style.fontSize = (Math.random() * 15 + 10) + 'px';
-                el.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                el.style.fontSize = (Math.random() * 12 + 8) + 'px';
+                el.style.animationDuration = (Math.random() * 5 + 7) + 's';
                 el.innerText = icon.t;
                 container.appendChild(el);
-                setTimeout(() => el.remove(), 10000);
-            }, 500);
+                setTimeout(() => el.remove(), 12000);
+            }, 600);
         }
 
         render(); startFalling();
