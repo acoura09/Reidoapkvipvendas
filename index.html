@@ -76,8 +76,13 @@
             <button onclick="switchTab('recargas')" id="tab-btn-recargas" class="tab-btn active-tab px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap">Vendas & Recargas</button>
             <button onclick="switchTab('tv')" id="tab-btn-tv" class="tab-btn bg-slate-800 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-slate-400">Canais ao Vivo</button>
             <button onclick="switchTab('doadas')" id="tab-btn-doadas" class="tab-btn bg-yellow-600/20 border border-yellow-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-yellow-500">Contas Doadas 🎁</button>
-            <!-- NOVO BOTÃO PUXAR CONTAS -->
             <button onclick="switchTab('puxar')" id="tab-btn-puxar" class="tab-btn bg-blue-600/20 border border-blue-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-blue-400">Puxar Contas 🔍</button>
+            
+            <!-- NOVAS ABAS DE CONTEÚDO ADULTO -->
+            <button onclick="switchAdultTab('pornhub', 'https://pt.pornhub.com/')" id="tab-btn-pornhub" class="tab-btn bg-orange-600/20 border border-orange-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-orange-400">Pornhub 🔞</button>
+            <button onclick="switchAdultTab('tube8', 'https://www.tube8.com/')" id="tab-btn-tube8" class="tab-btn bg-orange-600/20 border border-orange-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-orange-400">Tube8 🔞</button>
+            <button onclick="switchAdultTab('tikporn', 'https://tik.porn/')" id="tab-btn-tikporn" class="tab-btn bg-orange-600/20 border border-orange-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-orange-400">TikPorn 🔞</button>
+            <button onclick="switchAdultTab('xxxtik', 'https://xxxtik.com/')" id="tab-btn-xxxtik" class="tab-btn bg-orange-600/20 border border-orange-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-orange-400">XxxTik 🔞</button>
         </nav>
 
         <main class="content-area">
@@ -118,12 +123,21 @@
                 <div class="grid gap-3" id="doadas-list"></div>
             </section>
 
-            <!-- NOVA SEÇÃO PARA ABA PUXAR (NECESSÁRIA PARA O SWITCH NÃO BUGAR) -->
+            <!-- SEÇÃO PARA ABA PUXAR -->
             <section id="tab-puxar" class="hidden">
                 <div class="bg-blue-500/10 border-2 border-dashed border-blue-500/30 p-10 rounded-[40px] text-center">
                     <div class="text-4xl mb-4">🔍</div>
                     <h2 class="text-xl font-black text-blue-400 uppercase italic">Redirecionando...</h2>
                     <p class="text-[10px] text-slate-400 mt-2">Você está sendo levado ao Portal de Consultas.</p>
+                </div>
+            </section>
+
+            <!-- CONTAINER PARA REDIRECIONAMENTO DE ABAS ADULTAS -->
+            <section id="tab-adulto-redirect" class="hidden">
+                <div class="bg-orange-500/10 border-2 border-dashed border-orange-500/30 p-10 rounded-[40px] text-center">
+                    <div class="text-4xl mb-4">🔞</div>
+                    <h2 class="text-xl font-black text-orange-400 uppercase italic">Redirecionando...</h2>
+                    <p class="text-[10px] text-slate-400 mt-2">Abrindo o portal de conteúdo adulto selecionado em uma nova aba.</p>
                 </div>
             </section>
         </main>
@@ -136,11 +150,10 @@
     <script>
         const API_WA = "19999392061"; 
         let userPhone = "";
+        let isAdultVerified = false; // Controle de maioridade do usuário
         
-        // --- CONFIGURAÇÃO: COLOQUE O LINK DO SEU SITE ABAIXO ---
         const LINK_PUXAR_CONTAS = "https://acoura09.github.io/Reidoapk-Puchador/";
 
-        // Códigos PIX por valor atualizados
         const pixCodes = {
             "3.00": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654043.005802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304317E",
             "1.30": "00020101021126580014br.gov.bcb.pix0136e7e16869-07c9-4394-9a0f-93e0009787e452040000530398654041.305802BR5916Andre Luis coura6009SAO PAULO61080131010062070503***6304952B",
@@ -217,22 +230,49 @@
             } else { alert("Rei, digite seu Whats primeiro!"); }
         }
 
-        // FUNÇÃO ATUALIZADA COM REDIRECIONAMENTO PARA PUXAR CONTAS
         function switchTab(t) {
             playSound();
             
             if(t === 'puxar') {
-                // Abre o site em uma nova aba após o som do clique
                 setTimeout(() => {
                     window.open(LINK_PUXAR_CONTAS, '_blank');
                 }, 100);
-                // Opcional: Manter o usuário na aba atual ou mostrar o aviso de redirecionamento
             }
 
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab', 'bg-slate-800'));
             document.getElementById('tab-'+t).classList.remove('hidden');
             document.getElementById('tab-btn-'+t).classList.add('active-tab');
+        }
+
+        // NOVA FUNÇÃO: GERENCIA O DIRECIONAMENTO ADULTO COM TESTE DE IDADE
+        function switchAdultTab(tabId, url) {
+            playSound();
+
+            // Se ainda não foi verificado, pede o ano de nascimento
+            if (!isAdultVerified) {
+                const birthYear = prompt("CONTEÚDO RESTRITO (18+)\nPor favor, digite o seu ano de nascimento completo (Ex: 1995):");
+                const currentYear = new Date().getFullYear();
+                const age = currentYear - parseInt(birthYear);
+
+                if (birthYear && !isNaN(age) && age >= 18) {
+                    isAdultVerified = true;
+                } else {
+                    alert("Acesso negado. Você precisa ter 18 anos ou mais para acessar esta seção.");
+                    return; // Cancela a execução e não muda de aba
+                }
+            }
+
+            // Ativa visualmente o botão da aba selecionada
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab', 'bg-slate-800'));
+            document.getElementById('tab-adulto-redirect').classList.remove('hidden');
+            document.getElementById('tab-btn-' + tabId).classList.add('active-tab');
+
+            // Abre o site adulto em uma nova aba
+            setTimeout(() => {
+                window.open(url, '_blank');
+            }, 100);
         }
 
         function copyAccount(text) {
@@ -273,7 +313,6 @@
         function sendOrder(item, valor) {
             playSound();
             
-            // Garante que o valor tenha o formato correto para busca (ex: "12.00")
             const formattedValue = parseFloat(valor).toFixed(2);
             const pixToCopy = pixCodes[formattedValue] || API_WA;
             
