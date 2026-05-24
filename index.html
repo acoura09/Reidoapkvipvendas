@@ -72,17 +72,23 @@
             <h1 class="text-xl font-black italic">👑 REI DO APK <span class="text-green-500">VIP</span></h1>
         </header>
 
+        <!-- MENU DE NAVEGAÇÃO ATUALIZADO -->
         <nav class="flex gap-2 p-4 shrink-0 overflow-x-auto no-scrollbar">
             <button onclick="switchTab('recargas')" id="tab-btn-recargas" class="tab-btn active-tab px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap">Vendas & Recargas</button>
             <button onclick="switchTab('tv')" id="tab-btn-tv" class="tab-btn bg-slate-800 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-slate-400">Canais ao Vivo</button>
             <button onclick="switchTab('doadas')" id="tab-btn-doadas" class="tab-btn bg-yellow-600/20 border border-yellow-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-yellow-500">Contas Doadas 🎁</button>
             <button onclick="switchTab('puxar')" id="tab-btn-puxar" class="tab-btn bg-blue-600/20 border border-blue-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-blue-400">Puxar Contas 🔍</button>
             
-            <!-- NOVAS ABAS DE NAVEGAÇÃO DIRETA -->
             <button onclick="switchDirectTab('puxar-iptv1', 'https://mult-server-test.xo.je/gerador.html')" id="tab-btn-puxar-iptv1" class="tab-btn bg-orange-600/20 border border-orange-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-orange-400">Puxar IPTV 1</button>
             <button onclick="switchDirectTab('UNITV - GERA -COMFIG', 'https://acoura09.github.io/Rei-do-APK-Universal/')" id="tab-btn-puxar-unitv.comfig" class="tab-btn bg-orange-600/20 border border-orange-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-orange-400">Unitv.gera.comfig</button>
             <button onclick="switchDirectTab('iptv 3', 'https://acoura09.github.io/Reidoapk/')" id="tab-btn-iptv 3" class="tab-btn bg-orange-600/20 border border-orange-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-orange-400">iptv 3</button>
             <button onclick="switchDirectTab('Alphaplay', 'https://acoura09.github.io/Testerei/')" id="tab-btn-Alphaplay" class="tab-btn bg-orange-600/20 border border-orange-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-orange-400">Alphaplay</button>
+
+            <!-- NOVAS 4 ABAS ADICIONADAS ABAIXO -->
+            <button onclick="switchDirectTab('extra1', 'https://SEU-LINK-AQUI.com')" id="tab-btn-extra1" class="tab-btn bg-cyan-600/20 border border-cyan-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-cyan-400">Painel VIP 💎</button>
+            <button onclick="switchDirectTab('extra2', 'https://SEU-LINK-AQUI.com')" id="tab-btn-extra2" class="tab-btn bg-pink-600/20 border border-pink-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-pink-400">Filmes 4K 🎬</button>
+            <button onclick="switchDirectTab('extra3', 'https://SEU-LINK-AQUI.com')" id="tab-btn-extra3" class="tab-btn bg-indigo-600/20 border border-indigo-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-indigo-400">Gerador Gift 🎁</button>
+            <button onclick="switchDirectTab('extra4', 'https://SEU-LINK-AQUI.com')" id="tab-btn-extra4" class="tab-btn bg-emerald-600/20 border border-emerald-500/50 px-6 py-3 rounded-xl text-[10px] uppercase font-black whitespace-nowrap text-emerald-400">Checkers 🛠️</button>
         </nav>
 
         <main class="content-area">
@@ -244,17 +250,19 @@
             document.getElementById('tab-btn-'+t).classList.add('active-tab');
         }
 
-        // FUNÇÃO DE DIRECIONAMENTO DIRETO (SEM VERIFICAÇÃO DE IDADE)
         function switchDirectTab(tabId, url) {
             playSound();
-
-            // Ativa visualmente a aba correspondente
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab', 'bg-slate-800'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                if(!b.id.includes('recargas') && !b.id.includes('tv') && !b.id.includes('doadas')) {
+                   b.classList.remove('active-tab');
+                }
+            });
+            
             document.getElementById('tab-direct-redirect').classList.remove('hidden');
-            document.getElementById('tab-btn-' + tabId).classList.add('active-tab');
+            const btn = document.getElementById('tab-btn-' + tabId);
+            if(btn) btn.classList.add('active-tab');
 
-            // Abre o site diretamente em nova aba sem restrições
             setTimeout(() => {
                 window.open(url, '_blank');
             }, 100);
@@ -297,7 +305,6 @@
 
         function sendOrder(item, valor) {
             playSound();
-            
             const formattedValue = parseFloat(valor).toFixed(2);
             const pixToCopy = pixCodes[formattedValue] || API_WA;
             
@@ -347,11 +354,6 @@
         }
 
         render(); startFalling();
-    </script>
-    <script type="text/javascript">
-        aclib.runAutoTag({
-            zoneId: '1lunydtcap',
-        });
     </script>
 </body>
 </html>
